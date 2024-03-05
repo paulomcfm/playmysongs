@@ -1,4 +1,5 @@
 <%@ page import="unoeste.fipp.playmysongs.security.User" %>
+<%@ page import="java.io.File" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -42,8 +43,29 @@
         </div>
     </div>
 </nav>
+<div class="mb-3"></div>
+<div class="input-group mb-3 position-absolute top-50 start-50 translate-middle" style="width: 50%;">
+    <input type="text" class="form-control" placeholder="Digite sua busca" aria-label="Digite sua busca" aria-describedby="button-buscar">
+    <button class="btn btn-primary" type="button" id="button-buscar">Buscar</button>
+    <%
+        File pastaweb=new File(request.getServletContext().getRealPath("")+"/musicas");
+        for (File file : pastaweb.listFiles())
+            if(file.isFile()) {
+    %>
+                <audio controls>
+                    <source src="<%file.getName();%>" type="audio/mpeg">
+                </audio>
+    <%
+            }
+    %>
+
+</div>
+
+
+
 <% if (usuarioLogado) { %>
 <button onclick="acessarEnvio()" class="btn btn-primary" type="button">Enviar Música</button>
 <% } %>
+
 </body>
 </html>
