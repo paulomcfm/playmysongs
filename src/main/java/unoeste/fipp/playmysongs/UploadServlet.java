@@ -28,7 +28,6 @@ public class UploadServlet extends HttpServlet {
             String genero = request.getParameter("genero");
             String artista = request.getParameter("artista").replaceAll("\\s+", "");;
             Pattern pattern = Pattern.compile("^[a-zA-Z0-9]*$");
-            System.out.println(nome +" "+ artista);
             Matcher matcherNome = pattern.matcher(nome);
             Matcher matcherArtista = pattern.matcher(artista);
             if(matcherNome.matches() && matcherArtista.matches()) {

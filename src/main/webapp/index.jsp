@@ -1,12 +1,37 @@
 <%@ page import="unoeste.fipp.playmysongs.security.User" %>
 <%@ page import="java.io.File" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.regex.Matcher" %>
+<%@ page import="java.util.regex.Pattern" %>
+<%@ page import="java.util.List" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@page errorPage="erros.jsp" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <%
         User user = (User) session.getAttribute("user");
         boolean usuarioLogado = user != null && user.isAutenticado();
+    %>
+    <%
+        if (request.getMethod().equals("POST")) {
+            String nome = request.getParameter("musica");
+            List<String> resultados = new ArrayList<>();
+
+            File pastaweb = new File(request.getServletContext().getRealPath("") + "/musicas");
+            for (File file : pastaweb.listFiles()) {
+                if (file.isFile()) {
+                    String fileName = file.getName();
+                    Pattern pattern = Pattern.compile(Pattern.quote(nome), Pattern.CASE_INSENSITIVE);
+                    Matcher matcher = pattern.matcher(fileName);
+                    if (matcher.find()) {
+                        resultados.add(fileName);
+                    }
+                }
+            }
+
+            request.setAttribute("resultados", resultados);
+        }
     %>
     <script>
         function acessarEnvio(){
@@ -44,25 +69,36 @@
     </div>
 </nav>
 <div class="mb-3"></div>
-<div class="input-group mb-3 position-absolute top-50 start-50 translate-middle" style="width: 50%;">
-    <input type="text" class="form-control" placeholder="Digite sua busca" aria-label="Digite sua busca" aria-describedby="button-buscar">
-    <button class="btn btn-primary" type="button" id="button-buscar">Buscar</button>
-    <%
-        File pastaweb=new File(request.getServletContext().getRealPath("")+"/musicas");
-        for (File file : pastaweb.listFiles())
-            if(file.isFile()) {
-    %>
-                <audio controls>
-                    <source src="<%file.getName();%>" type="audio/mpeg">
-                </audio>
-    <%
-            }
-    %>
-
+<div class="input-group mb-3 d-flex justify-content-center align-items-center" style="width: 50%; margin: auto;">
+    <form method="post">
+        <input type="text" class="form-control" name="musica" placeholder="Digite sua busca" aria-label="Digite sua busca" aria-describedby="button-buscar">
+        <button class="btn btn-primary" type="submit" id="button-buscar">Buscar</button>
+    </form>
 </div>
 
+<div class="d-flex justify-content-center align-items-center" style="width: 50%; margin: auto;">
+    <ul>
+        <%
+            List<String> resultados = (List<String>) request.getAttribute("resultados");
+            File pastaweb=new File(request.getServletContext().getRealPath("")+"/musicas");
 
-
+            if (resultados != null) {
+                for (String resultado : resultados) {
+                    for (File file : pastaweb.listFiles()){
+                        if(file.isFile() && file.getName().equals(resultado)){
+        %>
+        <audio controls>
+            <source src="musicas/<%=file.getName()%>" type="audio/mpeg">
+        </audio>
+        <p><%=resultado%></p>
+        <%
+                        }
+                    }
+                }
+            }
+        %>
+    </ul>
+</div>
 <% if (usuarioLogado) { %>
 <button onclick="acessarEnvio()" class="btn btn-primary" type="button">Enviar Música</button>
 <% } %>
